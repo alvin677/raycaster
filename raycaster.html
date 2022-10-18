@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<canvas id = "render">
+
+</canvas><style>
+body {
+    margin:0
+}
+
+
+</style><script>
+var c = document.getElementById("render");
+var ctx = c.getContext("2d");
+keys = [];
+var angle = 0
+var speed = 3
+var playerX = 100
+var playerY = 100
+var playerRotX = 0
+var playerRotY = 0
+var length = 15
+
+// empty string = air, otherwise name of texture to render
+var map = [ // currently 7x7 map
+    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
+];
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+
+/*ctx.moveTo(0, 0);
+ctx.lineTo(500, 500);
+ctx.stroke();*/
+
+document.addEventListener('keydown', (event) => {keys[event.key] = true;}, false);
+document.addEventListener('keyup', (event) => {keys[event.key] = false;}, false);
+
+function main() {
+    if (keys["w"] == true) {
+        playerRotX = speed * Math.cos(angle * Math.PI / 180);
+        playerRotY = speed * Math.sin(angle * Math.PI / 180);
+        playerX -= playerRotX;
+        playerY -= playerRotY;
+
+        ctx.moveTo(playerX, playerY);
+    } // going forward
+    if (keys["s"] == true) {} // going back
+    if (keys["a"] == true) {} // going left
+    if (keys["d"] == true) {} // going right
+    if (keys["q"] == true) {angle -= 3;} // turning left
+    if (keys["e"] == true) {angle += 3;} // turning right
+
+    ctx.clearRect(0, 0, c.width, c.height);
+    // Render player
+    ctx.beginPath();
+    //ctx.rotate(angle * Math.PI / 180);
+    ctx.arc(playerX, playerY, 5, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    ctx.moveTo(playerX, playerY); //from
+    ctx.lineTo(playerX - playerRotX*length, playerY - playerRotY*length); //to
+    ctx.stroke();
+}setInterval(main, 20);
+
+</script>
+</html>
