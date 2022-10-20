@@ -20,14 +20,14 @@ var playerY = 100 // Player Y position
 var playerRotX = 0 // Player X rotation
 var playerRotY = 0 // Player Y rotation
 var length = 500 // Length of rays
-var rays = 10 // Amount of rays
-var raysDistance = 3 // Distance between each ray to another
-var mapSize = 50 // Size of map block
+var rays = 2 // Amount of rays
+var raysDistance = 0.02 // Distance between each ray to another
+var mapSize = 50 // Size of map blocks
 
 var map = [ // The map, 0 = air, 1 = white block
     [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-	[1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+	[1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1],
 	[1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -58,17 +58,15 @@ ctx.strokeStyle = "#999999";
 
 // Main loop (running every 20ms)
 function main() {
+		playerRotX = Math.cos(angle + Math.PI / 180);
+		playerRotY = Math.sin(angle + Math.PI / 180);
     if (keys["w"] == true) {
-		playerRotX = Math.cos(angle + rays/40 + Math.PI / 180);
-		playerRotY = Math.sin(angle + rays/40 + Math.PI / 180);
         playerX -= playerRotX*speed;
         playerY -= playerRotY*speed;
 
         ctx.moveTo(playerX, playerY);
     } // going forward
     if (keys["s"] == true) {
-		playerRotX = Math.cos(angle + rays/40 + Math.PI / 180);
-		playerRotY = Math.sin(angle + rays/40 + Math.PI / 180);
         playerX += playerRotX*speed;
         playerY += playerRotY*speed;
 
@@ -76,8 +74,8 @@ function main() {
 	} // going back
     if (keys["a"] == true) {} // going left
     if (keys["d"] == true) {} // going right
-    if (keys["q"] == true) {angle -= 0.02;} // turning left
-    if (keys["e"] == true) {angle += 0.02;} // turning right
+    if (keys["q"] == true) {angle -= 0.05;} // turning left
+    if (keys["e"] == true) {angle += 0.05;} // turning right
 
     ctx.clearRect(0, 0, c.width, c.height); // clear screen
 	
@@ -97,7 +95,6 @@ function main() {
 			}
 		}
 	}
-	
     // Render player
     ctx.beginPath();
     ctx.arc(playerX, playerY, 5, 0, 2 * Math.PI);
@@ -107,14 +104,14 @@ function main() {
 	// rays
 	for (let i = 0; i < rays; i++)
 	{
-		playerRotX = Math.cos(angle+((i)*raysDistance) * Math.PI / 180);
-		playerRotY = Math.sin(angle+((i)*raysDistance) * Math.PI / 180);
+		playerRotX = Math.cos(-(0.01*rays) + angle + (i*raysDistance) + Math.PI / 180);
+		playerRotY = Math.sin(-(0.01*rays) + angle + (i*raysDistance) + Math.PI / 180);
 		
-		ctx.moveTo(playerX, playerY); // draw line from
-		ctx.lineTo(playerX - playerRotX*length, playerY - playerRotY*length); // draw line to
+		ctx.moveTo(playerX, playerY); // draw line (ray) from
+		ctx.lineTo(playerX - playerRotX*length, playerY - playerRotY*length); // draw line (ray) to
 		ctx.stroke();
 	};
-}setInterval(main, 20); // loops main() again after 20ms
+}setInterval(main, 20); // Loops main() again after 20ms
 
 </script>
 </html>
