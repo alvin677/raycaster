@@ -2,29 +2,29 @@
 <html>
 <canvas id = "render">
 
-</canvas><style>
+</canvas><style> // Window style information
 body {
     margin:0;
 	background-color:#333333;
 }
 
 
-</style><script>
-var c = document.getElementById("render");
-var ctx = c.getContext("2d");
-keys = [];
-var angle = 0
-var speed = 5
-var playerX = 100
-var playerY = 100
-var playerRotX = 0
-var playerRotY = 0
-var length = 500
-var rays = 10
-var raysDistance = 3
-var mapSize = 50
+</style><script> // JavaScript code below
+var c = document.getElementById("render"); // Canvas variable
+var ctx = c.getContext("2d"); // Ctx, context (used when drawing)
+keys = []; // Pressed keys stored in this array
+var angle = 0 // Angle of player
+var speed = 5 // Player movement speed
+var playerX = 100 // Player X position
+var playerY = 100 // Player Y position
+var playerRotX = 0 // Player X rotation
+var playerRotY = 0 // Player Y rotation
+var length = 500 // Length of rays
+var rays = 10 // Amount of rays
+var raysDistance = 3 // Distance between each ray to another
+var mapSize = 50 // Size of map block
 
-var map = [ // currently 7x7 map
+var map = [ // The map, 0 = air, 1 = white block
     [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
 	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 	[1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -43,19 +43,20 @@ var map = [ // currently 7x7 map
 	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
+
+// setting the window size
 c.width = window.innerWidth;
 c.height = window.innerHeight;
 
-/*ctx.moveTo(0, 0);
-ctx.lineTo(500, 500);
-ctx.stroke();*/
-
+// Key press listeners, changes the keys array and makes it work correctly
 document.addEventListener('keydown', (event) => {keys[event.key] = true;}, false);
 document.addEventListener('keyup', (event) => {keys[event.key] = false;}, false);
 
+// Changes color of everything being drawn using ctx to white
 ctx.fillStyle = "#FFFFFF";
 ctx.strokeStyle = "#999999";
 
+// Main loop (running every 20ms)
 function main() {
     if (keys["w"] == true) {
 		playerRotX = Math.cos(angle + rays/40 + Math.PI / 180);
@@ -96,9 +97,9 @@ function main() {
 			}
 		}
 	}
+	
     // Render player
     ctx.beginPath();
-    //ctx.rotate(angle * Math.PI / 180);
     ctx.arc(playerX, playerY, 5, 0, 2 * Math.PI);
     ctx.stroke();
 
@@ -109,11 +110,11 @@ function main() {
 		playerRotX = Math.cos(angle+((i)*raysDistance) * Math.PI / 180);
 		playerRotY = Math.sin(angle+((i)*raysDistance) * Math.PI / 180);
 		
-		ctx.moveTo(playerX, playerY); //from
-		ctx.lineTo(playerX - playerRotX*length, playerY - playerRotY*length); //to
+		ctx.moveTo(playerX, playerY); // draw line from
+		ctx.lineTo(playerX - playerRotX*length, playerY - playerRotY*length); // draw line to
 		ctx.stroke();
 	};
-}setInterval(main, 20);
+}setInterval(main, 20); // loops main() again after 20ms
 
 </script>
 </html>
