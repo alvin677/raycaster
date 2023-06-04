@@ -1,0 +1,185 @@
+<html>
+<head>
+    <style>
+        canvas {
+            display: block;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            // Canvas setup
+            const canvas = document.getElementById('render');
+            const ctx = canvas.getContext('2d');
+            const screenWidth = canvas.width;
+            const screenHeight = canvas.height;
+
+            // Map data
+            const map = [
+              [1, 0, 0, 0, 0, 0, 0],
+              [1, 0, 0, 0, 0, 0, 0],
+              [1, 0, 0, 1, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0]
+            ];
+            const mapWidth = map[0].length;
+            const mapHeight = map.length;
+            const wallSize = 0.5;
+
+            // Player data
+            let playerX = 2.5;
+            let playerY = 2.5;
+            let playerDirection = 0;
+            const fov = Math.PI / 3;
+            const rayCount = screenWidth;
+
+            // Keyboard state
+            const keys = {};
+
+            // Register keydown and keyup events
+            document.addEventListener('keydown', (event) => {
+              keys[event.key.toLowerCase()] = true;
+            });
+
+            document.addEventListener('keyup', (event) => {
+              keys[event.key.toLowerCase()] = false;
+            });
+
+            // Rendering loop
+            function render() {
+              ctx.clearRect(0, 0, screenWidth, screenHeight);
+
+              // Normalize player direction angle
+              playerDirection = playerDirection % (2 * Math.PI);
+              if (playerDirection < 0) {
+                playerDirection += 2 * Math.PI;
+              }
+
+              // Move the player
+              const moveSpeed = 0.02;
+              const rotationSpeed = 0.01;
+
+              if (keys['w']) {
+                const moveDistance = Math.cos(playerDirection) * moveSpeed;
+                if (isCollision(playerX + moveDistance, playerY)) {
+                  playerX += moveDistance;
+                }
+                const moveDistanceY = Math.sin(playerDirection) * moveSpeed;
+                if (isCollision(playerX, playerY + moveDistanceY)) {
+                  playerY += moveDistanceY;
+                }
+              }
+
+              if (keys['s']) {
+                const moveDistance = Math.cos(playerDirection) * moveSpeed;
+                if (isCollision(playerX - moveDistance, playerY)) {
+                  playerX -= moveDistance;
+                }
+                const moveDistanceY = Math.sin(playerDirection) * moveSpeed;
+                if (isCollision(playerX, playerY - moveDistanceY)) {
+                  playerY -= moveDistanceY;
+                }
+              }
+
+              if (keys['a']) {
+                const moveDistance = Math.sin(playerDirection) * moveSpeed;
+                if (isCollision(playerX + moveDistance, playerY)) {
+                  playerX += moveDistance;
+                }
+                const moveDistanceY = -Math.cos(playerDirection) * moveSpeed;
+                if (isCollision(playerX, playerY + moveDistanceY)) {
+                  playerY += moveDistanceY;
+                }
+              }
+
+              if (keys['d']) {
+                const moveDistance = Math.sin(playerDirection) * moveSpeed;
+                if (isCollision(playerX - moveDistance, playerY)) {
+                  playerX -= moveDistance;
+                }
+                const moveDistanceY = -Math.cos(playerDirection) * moveSpeed;
+                if (isCollision(playerX, playerY - moveDistanceY)) {
+                  playerY -= moveDistanceY;
+                }
+              }
+
+              if (keys['q']) {
+                playerDirection -= rotationSpeed;
+              }
+
+              if (keys['e']) {
+                playerDirection += rotationSpeed;
+              }
+
+              // Draw floor
+              ctx.fillStyle = '#cccccc';
+              ctx.fillRect(0, screenHeight / 2, screenWidth, screenHeight / 2);
+
+              // Draw walls
+              for (let column = 0; column < screenWidth; column++) {
+                // Calculate the angle for the current column
+                const rayAngle = (playerDirection - fov / 2) + (column / screenWidth) * fov;
+
+                // Cast a ray and get the distance to the wall
+                const distanceToWall = castRay(playerX, playerY, rayAngle);
+
+                // Apply correction to distance for a perspective-correct rendering
+                const correctedDistance = distanceToWall * Math.cos(rayAngle - playerDirection);
+
+                // Calculate wall height based on corrected distance
+                const wallHeight = (wallSize * screenHeight) / correctedDistance;
+
+                // Calculate the brightness based on corrected distance
+                const brightness = 1 - (correctedDistance / screenWidth) * 1.5;
+
+                // Calculate the wall color based on brightness
+                const wallColor = `rgb(${Math.floor(255 * brightness)}, ${Math.floor(255 * brightness)}, ${Math.floor(
+                  255 * brightness
+                )})`;
+
+                // Draw the wall segment
+                ctx.fillStyle = wallColor;
+                ctx.fillRect(column, (screenHeight - wallHeight) / 2, 1, wallHeight);
+              }
+
+              requestAnimationFrame(render);
+            }
+
+            // Raycasting function
+            function castRay(x, y, angle) {
+              let distance = 0;
+              const maxDistance = 20;
+              const stepSize = 0.01;
+              let wallHit = false;
+
+              while (!wallHit && distance < maxDistance) {
+                const rayX = x + distance * Math.cos(angle);
+                const rayY = y + distance * Math.sin(angle);
+                const mapX = Math.floor(rayX);
+                const mapY = Math.floor(rayY);
+
+                if (mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight && map[mapY][mapX] === 1) {
+                  wallHit = true;
+                } else {
+                  distance += stepSize;
+                }
+              }
+
+              return distance;
+            }
+
+            // Check collision with walls
+            function isCollision(x, y) {
+              const mapX = Math.floor(x);
+              const mapY = Math.floor(y);
+              return mapX >= 0 && mapX < mapWidth && mapY >= 0 && mapY < mapHeight && map[mapY][mapX] !== 1;
+            }
+
+            // Start the rendering loop
+            render();
+        }
+    </script>
+</head>
+<body>
+    <canvas id="render" height="720" width="1280"></canvas>
+</body>
+</html>
